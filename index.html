@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Minimalist Calculator</title>
+    <style>
+        * { 
+            box-sizing: border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        }
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            background: #090a0f; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        
+        .calculator-card { 
+            background: #16171a;
+            border: 1px solid #22252a;
+            border-radius: 28px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
+            width: 340px; 
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        #display { 
+            width: 100%; 
+            height: 80px; 
+            background: transparent; 
+            border: none;
+            color: #ffffff; 
+            text-align: right; 
+            padding: 10px 5px; 
+            font-size: 2.5rem; 
+            font-weight: 300;
+            outline: none; 
+        }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 12px; 
+        }
+
+        button.calc-btn { 
+            padding: 18px; 
+            font-size: 1.3rem; 
+            font-weight: 400;
+            border: none; 
+            border-radius: 50%; /* Clean circular keys */
+            cursor: pointer; 
+            background: #232429; 
+            color: #ffffff; 
+            transition: background 0.15s ease, transform 0.1s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1; /* Keeps buttons perfectly round */
+        }
+
+        button.calc-btn:hover { 
+            background: #2f3137; 
+        }
+
+        button.calc-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Functional layout accent shifting overrides */
+        button.operator { 
+            background: #3a3f47; 
+            color: #58a6ff; 
+            font-weight: 600;
+        }
+
+        button.operator:hover { 
+            background: #464c56; 
+        }
+
+        button.clear { 
+            background: #2d1f21; 
+            color: #ff6b6b; 
+        }
+
+        button.clear:hover { 
+            background: #3d292d; 
+        }
+
+        button.equal { 
+            background: #58a6ff; 
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        button.equal:hover { 
+            background: #79b8ff; 
+        }
+
+        /* History Icon Button embedded inside the grid matrix at the bottom */
+        button.history-toggle-btn {
+            background: #1c1d22;
+            border: 1px solid #282a30;
+            color: #8b949e;
+            font-size: 1.2rem;
+        }
+        button.history-toggle-btn:hover {
+            background: #25272f;
+            color: #58a6ff;
+        }
+
+        /* Inline Integrated Bottom History Storage Output Display List */
+        .bottom-history {
+            border-top: 1px solid #22252a;
+            padding-top: 12px;
+            margin-top: 5px;
+            display: none; 
+            flex-direction: column;
+            max-height: 160px;
+        }
+        
+        .bottom-history.open {
+            display: flex;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .history-header h3 {
+            margin: 0;
+            color: #8b949e;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .clear-log-btn {
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .clear-log-btn:hover { color: #ff6b6b; }
+        
+        .history-list { 
+            overflow-y: auto; 
+            list-style: none; 
+            padding: 0; 
+            margin: 0; 
+            max-height: 120px;
+        }
+
+        .history-list li { 
+            padding: 8px 4px; 
+            border-bottom: 1px solid #1f2226; 
+            font-size: 0.9rem; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .history-list li .expr { color: #8b949e; }
+        .history-list li .ans { color: #58a6ff; font-weight: 500; }
+        
+        .history-list li:hover { 
+            background: #1c1d22;
+        }
+
+        .history-list::-webkit-scrollbar { width: 3px; }
+        .history-list::-webkit-scrollbar-thumb { background: #2f3137; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-card">
+        <input type="text" id="display" readonly placeholder="0">
+        
+        <div class="grid">
+            <button class="calc-btn clear" onclick="clearDisplay()">C</button>
+            <button class="calc-btn operator" onclick="appendValue('(')">(</button>
+            <button class="calc-btn operator" onclick="appendValue(')')">)</button>
+            <button class="calc-btn operator" onclick="appendValue('/')">÷</button>
+            
+            <button class="calc-btn" onclick="appendValue('7')">7</button>
+            <button class="calc-btn" onclick="appendValue('8')">8</button>
+            <button class="calc-btn" onclick="appendValue('9')">9</button>
+            <button class="calc-btn operator" onclick="appendValue('*')">×</button>
+            
+            <button class="calc-btn" onclick="appendValue('4')">4</button>
+            <button class="calc-btn" onclick="appendValue('5')">5</button>
+            <button class="calc-btn" onclick="appendValue('6')">6</button>
+            <button class="calc-btn operator" onclick="appendValue('-')">-</button>
+            
+            <button class="calc-btn" onclick="appendValue('1')">1</button>
+            <button class="calc-btn" onclick="appendValue('2')">2</button>
+            <button class="calc-btn" onclick="appendValue('3')">3</button>
+            <button class="calc-btn operator" onclick="appendValue('+')">+</button>
+            
+            <button class="calc-btn" onclick="appendValue('0')">0</button>
+            <button class="calc-btn" onclick="appendValue('.')">.</button>
+            <button class="calc-btn history-toggle-btn" onclick="toggleHistory()" title="History Log">🕒</button>
+            <button class="calc-btn equal" onclick="calculateResult()">=</button>
+        </div>
+
+        <div id="bottomHistory" class="bottom-history">
+            <div class="history-header">
+                <h3>History</h3>
+                <button class="clear-log-btn" onclick="clearLogHistory()">Clear All</button>
+            </div>
+            <ul id="historyList" class="history-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const bottomHistory = document.getElementById('bottomHistory');
+
+        function appendValue(val) {
+            if (display.value === '0' && !isNaN(val)) display.value = '';
+            display.value += val;
+        }
+
+        function clearDisplay() {
+            display.value = '';
+        }
+
+        function toggleHistory() {
+            const isOpen = bottomHistory.classList.contains('open');
+            if (!isOpen) {
+                loadHistory();
+                bottomHistory.classList.add('open');
+            } else {
+                bottomHistory.classList.remove('open');
+            }
+        }
+
+        function calculateResult() {
+            const expr = display.value;
+            if (!expr) return;
+
+            if (/[^0-9\+\-\*\/\.\(\)]/.test(expr)) {
+                display.value = "Error";
+                return;
+            }
+
+            try {
+                const result = Function(`"use strict"; return (${expr})`)();
+                
+                if (result === Infinity || result === -Infinity) {
+                    display.value = "Error";
+                    return;
+                }
+
+                display.value = result;
+                saveToLocalStorage(expr, result);
+                
+                if (bottomHistory.classList.contains('open')) {
+                    loadHistory();
+                }
+            } catch (err) {
+                display.value = "Error";
+            }
+        }
+
+        function saveToLocalStorage(expression, result) {
+            let history = JSON.parse(localStorage.getItem('calc_history')) || [];
+            history.unshift({ expression: expression, ans: String(result) });
+            if (history.length > 20) history.pop();
+            localStorage.setItem('calc_history', JSON.stringify(history));
+        }
+
+        function loadHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            
+            let history = JSON.parse(localStorage.getItem('calc_history')) || [];
+
+            if (history.length > 0) {
+                history.forEach(row => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="expr">${row.expression} =</span><span class="ans">${row.ans}</span>`;
+                    li.onclick = () => { display.value = row.expression; };
+                    list.appendChild(li);
+                });
+            } else {
+                list.innerHTML = '<li style="border:none;color:#5c6370;justify-content:center;font-size:0.8rem;">No records</li>';
+            }
+        }
+
+        function clearLogHistory() {
+            localStorage.removeItem('calc_history');
+            loadHistory();
+        }
+    </script>
+</body>
+</html>
